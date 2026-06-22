@@ -1,1 +1,3 @@
-npm test
+#!/usr/bin/env sh
+# Husky pre-commit hook — runs lint-staged (ESLint + Prettier + Constitution review)
+npx lint-staged

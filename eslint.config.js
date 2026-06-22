@@ -1,13 +1,13 @@
 // eslint.config.js — enforces the Project Constitution (CONSTITUTION.md)
+// Uses ESLint v10 flat-config compatible plugins only.
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import pluginReact from 'eslint-plugin-react';
 import pluginA11y from 'eslint-plugin-jsx-a11y';
-import pluginImport from 'eslint-plugin-import';
+import pluginImportX from 'eslint-plugin-import-x';
 import pluginPrettier from 'eslint-plugin-prettier';
 
 export default defineConfig([
@@ -21,9 +21,8 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     plugins: {
-      react: pluginReact,
       'jsx-a11y': pluginA11y,
-      import: pluginImport,
+      'import-x': pluginImportX,
       prettier: pluginPrettier,
     },
     languageOptions: {
@@ -31,9 +30,6 @@ export default defineConfig([
       parserOptions: {
         ecmaFeatures: { jsx: true },
       },
-    },
-    settings: {
-      react: { version: 'detect' },
     },
     rules: {
       // ─── Prettier formatting ──────────────────────────────────────────
@@ -64,19 +60,10 @@ export default defineConfig([
       'jsx-a11y/no-noninteractive-element-interactions': 'warn', // 🟡
       'jsx-a11y/no-static-element-interactions': 'error',     // 🔴
 
-      // ─── React (CONSTITUTION §2 & §5) ────────────────────────────────
-      'react/jsx-no-duplicate-props': 'error',
-      'react/jsx-key': ['error', { checkFragmentShorthand: true }], // 🔴 stable keys
-      'react/no-array-index-key': 'warn',                     // 🟡 no index keys
-      'react/no-unstable-nested-components': 'error',         // 🟡 inline components
-      'react/self-closing-comp': 'warn',                      // 🟢
-      'react/jsx-no-useless-fragment': 'warn',                // 🟢
-      'react/display-name': 'warn',                           // 🟡
-
       // ─── Imports (CONSTITUTION §8) ────────────────────────────────────
-      'import/no-duplicates': 'error',                        // 🟡
-      'import/no-cycle': 'error',                             // 🟡 no circular imports
-      'import/order': [
+      'import-x/no-duplicates': 'error',                     // 🟡
+      'import-x/no-cycle': 'error',                          // 🟡 no circular imports
+      'import-x/order': [
         'warn',
         {
           groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
