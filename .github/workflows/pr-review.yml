@@ -1,0 +1,63 @@
+name: ⚖️ Constitution PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  constitution-review:
+    name: Constitution & Quality Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ─── Gate 1: Prettier ─────────────────────────────────────────────
+      - name: 🎨 Check formatting (Prettier)
+        run: npx prettier --check "src/**/*.{ts,tsx,css}"
+
+      # ─── Gate 2: ESLint (full constitution ruleset) ───────────────────
+      - name: 🔍 ESLint — Constitution §1 §2 §3 §4 §5 §6 §8
+        run: npm run lint
+
+      # ─── Gate 3: TypeScript strict check ─────────────────────────────
+      - name: 🏷️ TypeScript type-check — Constitution §1
+        run: npx tsc --noEmit
+
+      # ─── Gate 4: Tests ────────────────────────────────────────────────
+      - name: 🧪 Tests — Constitution §10
+        run: npm run test --if-present
+
+      # ─── Gate 5: Build ────────────────────────────────────────────────
+      - name: 🏗️ Build
+        run: npm run build
+
+      # ─── Gate 6: Review changed .tsx files ───────────────────────────
+      - name: ⚖️ Auto-review changed components
+        run: |
+          chmod +x scripts/review.sh
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' | grep -v 'test\|spec\|\.d\.ts' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No component files changed."
+            exit 0
+          fi
+          FAILED=0
+          while IFS= read -r file; do
+            echo "──────────────────────────────────────────────"
+            echo "Reviewing: $file"
+            bash scripts/review.sh "$file" || FAILED=1
+          done <<< "$CHANGED"
+          exit $FAILED
