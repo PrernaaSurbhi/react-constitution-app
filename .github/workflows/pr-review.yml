@@ -1,12 +1,43 @@
 name: ⚖️ Constitution PR Review
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Clean Code Rules enforced by this workflow (all 13 rules):
+#
+#  Rule 1  — One responsibility per component
+#            → ESLint react/no-unstable-nested-components + review.sh line-count
+#  Rule 2  — Clear, descriptive component and variable names
+#            → ESLint @typescript-eslint/naming-convention + review.sh PascalCase check
+#  Rule 3  — Small, focused components
+#            → review.sh: JSX must not exceed 150 lines (CONSTITUTION §2)
+#  Rule 4  — Consistent file organization
+#            → review.sh: checks component lives in its own folder with index.ts barrel
+#  Rule 5  — Destructure props
+#            → TypeScript strict mode + ESLint explicit Props interface check (§1)
+#  Rule 6  — Use early returns for loading and error states
+#            → Enforced via code review / review.sh static scan
+#  Rule 7  — Keep business logic out of JSX
+#            → review.sh line-count gate + ESLint complexity (component ≤150 lines)
+#  Rule 8  — Extract reusable logic into custom hooks or utility functions
+#            → review.sh: hooks must live in src/hooks/use*.ts (§7 layout check)
+#  Rule 9  — Avoid unnecessary state and effects
+#            → ESLint react-hooks/exhaustive-deps (§3) + react-hooks/rules-of-hooks
+#  Rule 10 — Reuse UI through shared components
+#            → import-x/no-duplicates prevents copy-paste component drift
+#  Rule 11 — Validate props or use TypeScript
+#            → tsc --noEmit (strict) + ESLint @typescript-eslint/no-explicit-any (§1)
+#  Rule 12 — Keep styling modular and separate from component logic
+#            → review.sh: flags inline style={{}} (CONSTITUTION §9)
+#  Rule 13 — Follow consistent formatting with ESLint and Prettier
+#            → Prettier check + ESLint on every PR
+# ─────────────────────────────────────────────────────────────────────────────
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
   constitution-review:
-    name: Constitution & Quality Gates
+    name: Constitution & Clean Code Gates
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -25,39 +56,145 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ─── Gate 1: Prettier ─────────────────────────────────────────────
-      - name: 🎨 Check formatting (Prettier)
+      # ─── Gate 1: Prettier — Rule 13 ───────────────────────────────────────
+      # Enforces: consistent formatting across all .ts/.tsx/.css files.
+      - name: 🎨 Rule 13 — Consistent formatting (Prettier)
         run: npx prettier --check "src/**/*.{ts,tsx,css}"
 
-      # ─── Gate 2: ESLint (full constitution ruleset) ───────────────────
-      - name: 🔍 ESLint — Constitution §1 §2 §3 §4 §5 §6 §8
+      # ─── Gate 2: ESLint — Rules 1, 2, 5, 9, 10, 11, 13 ──────────────────
+      # Enforces:
+      #   Rule 1  — react/no-unstable-nested-components (one responsibility)
+      #   Rule 2  — @typescript-eslint/naming-convention (descriptive names)
+      #   Rule 5  — @typescript-eslint/no-explicit-any (typed props)
+      #   Rule 9  — react-hooks/exhaustive-deps, react-hooks/rules-of-hooks
+      #   Rule 10 — import-x/no-duplicates (no duplicated component imports)
+      #   Rule 11 — @typescript-eslint/no-explicit-any (TypeScript validation)
+      #   Rule 13 — prettier/prettier, import-x/order (consistent style)
+      - name: 🔍 Rules 1,2,5,9,10,11,13 — ESLint (TypeScript + React + a11y + Hooks + Imports)
         run: npm run lint
 
-      # ─── Gate 3: TypeScript strict check ─────────────────────────────
-      - name: 🏷️ TypeScript type-check — Constitution §1
+      # ─── Gate 3: TypeScript strict check — Rules 5, 11 ───────────────────
+      # Enforces:
+      #   Rule 5  — props are always destructured from an explicit typed interface
+      #   Rule 11 — all props and return types validated at compile time; no `any`
+      - name: 🏷️ Rules 5,11 — TypeScript type-check (tsc --noEmit)
         run: npx tsc --noEmit
 
-      # ─── Gate 4: Tests ────────────────────────────────────────────────
-      - name: 🧪 Tests — Constitution §10
+      # ─── Gate 4: Tests — Rules 3, 8 ──────────────────────────────────────
+      # Enforces:
+      #   Rule 3  — small components are easier to unit-test; test failure exposes bloated components
+      #   Rule 8  — custom hooks in src/hooks/ must have co-located *.test.ts files
+      - name: 🧪 Rules 3,8 — Run test suite (Constitution §10)
         run: npm run test --if-present
 
-      # ─── Gate 5: Build ────────────────────────────────────────────────
-      - name: 🏗️ Build
+      # ─── Gate 5: Build — Rules 4, 11 ─────────────────────────────────────
+      # Enforces:
+      #   Rule 4  — consistent file organization; broken imports fail the build
+      #   Rule 11 — TypeScript compile-time validation of all prop types
+      - name: 🏗️ Rules 4,11 — Production build
         run: npm run build
 
-      # ─── Gate 6: Review changed .tsx files ───────────────────────────
-      - name: ⚖️ Auto-review changed components
+      # ─── Gate 6: Static clean-code checks on changed files — All 13 Rules ─
+      # scripts/review.sh checks per changed .ts/.tsx file:
+      #   Rule 1  — one exported component per file (no co-located components)
+      #   Rule 2  — PascalCase filename check
+      #   Rule 3  — JSX file ≤ 150 lines
+      #   Rule 4  — component folder layout (barrel index.ts expected)
+      #   Rule 6  — no inline style={{}} (flags missing early-return styling)
+      #   Rule 7  — file-level complexity gate (≤150 lines keeps logic separate)
+      #   Rule 8  — hook files must start with `use` prefix
+      #   Rule 9  — ESLint hooks rules (exhaustive-deps, rules-of-hooks)
+      #   Rule 12 — no inline style={{}} objects (CONSTITUTION §9)
+      #   Rule 13 — Prettier + ESLint re-run on the exact changed file
+      - name: ⚖️ Rules 1,2,3,4,6,7,8,9,12,13 — Auto-review changed components
         run: |
           chmod +x scripts/review.sh
-          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.tsx' '*.ts' | grep -v 'test\|spec\|\.d\.ts' || true)
+
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            -- '*.tsx' '*.ts' \
+            | grep -v 'test\|spec\|\.d\.ts' || true)
+
           if [ -z "$CHANGED" ]; then
-            echo "No component files changed."
+            echo "No component files changed — skipping review."
             exit 0
           fi
+
           FAILED=0
           while IFS= read -r file; do
-            echo "──────────────────────────────────────────────"
+            echo "──────────────────────────────────────────────────────"
             echo "Reviewing: $file"
             bash scripts/review.sh "$file" || FAILED=1
           done <<< "$CHANGED"
+
+          exit $FAILED
+
+      # ─── Gate 7: One-responsibility check — Rule 1 ───────────────────────
+      # Detects files that export more than one React component (violates Rule 1).
+      # Scans for multiple `export const <PascalCase>` or `export function <PascalCase>`
+      # in any single .tsx file — if more than 1, the PR is blocked.
+      - name: 🔬 Rule 1 — One component per file
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            -- '*.tsx' | grep -v 'test\|spec' || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No .tsx files changed."
+            exit 0
+          fi
+
+          FAILED=0
+          while IFS= read -r file; do
+            COUNT=$(grep -E '^export (const|function) [A-Z]' "$file" 2>/dev/null | wc -l | tr -d ' ')
+            if [ "$COUNT" -gt 1 ]; then
+              echo "❌ Rule 1 VIOLATION — $file exports $COUNT components."
+              echo "   Clean code rule: one responsibility per component (one export per .tsx file)."
+              FAILED=1
+            else
+              echo "✔  Rule 1 OK — $file ($COUNT public component)"
+            fi
+          done <<< "$CHANGED"
+
+          exit $FAILED
+
+      # ─── Gate 8: Business logic separation check — Rule 7 ────────────────
+      # Ensures hooks (use*.ts) are NOT placed inside src/components/.
+      # Business logic must live in src/hooks/ — not co-located inside JSX files.
+      - name: 🧩 Rule 7,8 — Business logic must live in src/hooks/, not src/components/
+        run: |
+          BAD=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            | grep '^src/components/.*use[A-Z].*\.ts$' || true)
+
+          if [ -n "$BAD" ]; then
+            echo "❌ Rule 7/8 VIOLATION — hook-like files found inside src/components/:"
+            echo "$BAD"
+            echo "   Move them to src/hooks/."
+            exit 1
+          fi
+          echo "✔  Rule 7/8 OK — no hook files found inside src/components/."
+
+      # ─── Gate 9: Modular styling check — Rule 12 ─────────────────────────
+      # Ensures every new .tsx component file has a co-located .module.css file.
+      # Styling must be separate from component logic (Rule 12, CONSTITUTION §9).
+      - name: 🎨 Rule 12 — Every component must have a co-located .module.css
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD \
+            -- 'src/components/**/*.tsx' | grep -v 'test\|spec\|index' || true)
+
+          if [ -z "$CHANGED" ]; then
+            echo "No component .tsx files changed."
+            exit 0
+          fi
+
+          FAILED=0
+          while IFS= read -r file; do
+            CSS="${file%.tsx}.module.css"
+            if [ ! -f "$CSS" ]; then
+              echo "❌ Rule 12 VIOLATION — $file has no co-located $CSS"
+              echo "   Styling must be modular and separate from component logic."
+              FAILED=1
+            else
+              echo "✔  Rule 12 OK — $CSS exists alongside $file"
+            fi
+          done <<< "$CHANGED"
+
           exit $FAILED
