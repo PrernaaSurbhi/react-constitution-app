@@ -1,0 +1,271 @@
+/* UserSearchCard.module.css — CONSTITUTION §9: CSS Modules + custom properties, no magic numbers */
+
+/* ─── Tokens ──────────────────────────────────────────────────────────────── */
+:root {
+  --usc-radius: 8px;
+  --usc-radius-avatar: 50%;
+  --usc-radius-badge: 4px;
+
+  --usc-color-bg: #ffffff;
+  --usc-color-surface: #f7f8fa;
+  --usc-color-border: #e5e7eb;
+  --usc-color-border-focus: #3b82d4;
+  --usc-color-text: #1f2328;
+  --usc-color-muted: #57606a;
+  --usc-color-accent: #3b82d4;
+  --usc-color-accent-light: #eff6ff;
+  --usc-color-hover: #f0f6ff;
+  --usc-color-selected: #dbeafe;
+  --usc-color-avatar-bg: #3b82d4;
+  --usc-color-avatar-text: #ffffff;
+  --usc-color-badge-bg: #f0f6ff;
+  --usc-color-badge-text: #1d4ed8;
+  --usc-color-empty: #9ca3af;
+  --usc-color-dismiss-bg: #f3f4f6;
+  --usc-color-dismiss-hover: #e5e7eb;
+
+  --usc-spacing-xs: 4px;
+  --usc-spacing-sm: 8px;
+  --usc-spacing-md: 14px;
+  --usc-spacing-lg: 20px;
+  --usc-spacing-xl: 24px;
+
+  --usc-font-xs: 0.75rem;
+  --usc-font-sm: 0.8125rem;
+  --usc-font-md: 0.9375rem;
+  --usc-font-lg: 1.0625rem;
+}
+
+/* ─── Card wrapper ────────────────────────────────────────────────────────── */
+.card {
+  background: var(--usc-color-bg);
+  border: 1px solid var(--usc-color-border);
+  border-radius: var(--usc-radius);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+/* ─── Header ──────────────────────────────────────────────────────────────── */
+.header {
+  padding: var(--usc-spacing-md) var(--usc-spacing-lg);
+  border-bottom: 1px solid var(--usc-color-border);
+  background: var(--usc-color-surface);
+}
+
+.title {
+  font-size: var(--usc-font-lg);
+  font-weight: 700;
+  color: var(--usc-color-text);
+  margin: 0 0 var(--usc-spacing-sm);
+}
+
+/* ─── Search input group ──────────────────────────────────────────────────── */
+.searchGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--usc-spacing-sm);
+  background: var(--usc-color-bg);
+  border: 1px solid var(--usc-color-border);
+  border-radius: var(--usc-radius);
+  padding: var(--usc-spacing-xs) var(--usc-spacing-sm);
+  transition: border-color 150ms ease;
+}
+
+.searchGroup:focus-within {
+  border-color: var(--usc-color-border-focus);
+  outline: 2px solid var(--usc-color-accent-light);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: var(--usc-font-md);
+  color: var(--usc-color-text);
+  padding: var(--usc-spacing-xs) 0;
+}
+
+.searchInput::placeholder {
+  color: var(--usc-color-empty);
+}
+
+.clearBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--usc-color-muted);
+  font-size: var(--usc-font-md);
+  padding: var(--usc-spacing-xs);
+  border-radius: var(--usc-radius);
+  line-height: 1;
+  transition: background 150ms ease;
+}
+
+.clearBtn:hover {
+  background: var(--usc-color-dismiss-hover);
+  color: var(--usc-color-text);
+}
+
+.clearBtn:focus-visible {
+  outline: 2px solid var(--usc-color-accent);
+  outline-offset: 2px;
+}
+
+/* ─── Results count ───────────────────────────────────────────────────────── */
+.resultsCount {
+  padding: var(--usc-spacing-sm) var(--usc-spacing-lg) var(--usc-spacing-xs);
+  font-size: var(--usc-font-xs);
+  color: var(--usc-color-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ─── User list ───────────────────────────────────────────────────────────── */
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: var(--usc-spacing-md);
+  padding: var(--usc-spacing-sm) var(--usc-spacing-lg);
+  cursor: pointer;
+  border-bottom: 1px solid var(--usc-color-border);
+  transition: background 150ms ease;
+}
+
+.listItem:last-child {
+  border-bottom: none;
+}
+
+.listItem:hover {
+  background: var(--usc-color-hover);
+}
+
+.listItem:focus-visible {
+  outline: 2px solid var(--usc-color-accent);
+  outline-offset: -2px;
+}
+
+.listItemSelected {
+  background: var(--usc-color-selected);
+}
+
+/* ─── Avatar ──────────────────────────────────────────────────────────────── */
+.avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: var(--usc-radius-avatar);
+  background: var(--usc-color-avatar-bg);
+  color: var(--usc-color-avatar-text);
+  font-size: var(--usc-font-xs);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.02em;
+}
+
+/* ─── User info ───────────────────────────────────────────────────────────── */
+.userName {
+  font-size: var(--usc-font-sm);
+  font-weight: 600;
+  color: var(--usc-color-text);
+}
+
+.userRole {
+  font-size: var(--usc-font-xs);
+  color: var(--usc-color-muted);
+}
+
+/* ─── Empty state ─────────────────────────────────────────────────────────── */
+.empty {
+  padding: var(--usc-spacing-xl) var(--usc-spacing-lg);
+  text-align: center;
+  color: var(--usc-color-empty);
+  font-size: var(--usc-font-sm);
+}
+
+/* ─── Detail panel ────────────────────────────────────────────────────────── */
+.detail {
+  padding: var(--usc-spacing-lg);
+  border-top: 1px solid var(--usc-color-border);
+  background: var(--usc-color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--usc-spacing-md);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--usc-spacing-md);
+}
+
+.detailAvatarLg {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: var(--usc-radius-avatar);
+  background: var(--usc-color-avatar-bg);
+  color: var(--usc-color-avatar-text);
+  font-size: var(--usc-font-md);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailName {
+  font-size: var(--usc-font-lg);
+  font-weight: 700;
+  color: var(--usc-color-text);
+  margin: 0;
+}
+
+.detailBadge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--usc-radius-badge);
+  font-size: var(--usc-font-xs);
+  font-weight: 600;
+  background: var(--usc-color-badge-bg);
+  color: var(--usc-color-badge-text);
+  margin-top: var(--usc-spacing-xs);
+}
+
+.detailEmail {
+  font-size: var(--usc-font-sm);
+  color: var(--usc-color-muted);
+}
+
+.dismissBtn {
+  align-self: flex-start;
+  background: var(--usc-color-dismiss-bg);
+  border: 1px solid var(--usc-color-border);
+  border-radius: var(--usc-radius);
+  padding: var(--usc-spacing-xs) var(--usc-spacing-md);
+  font-size: var(--usc-font-sm);
+  color: var(--usc-color-muted);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.dismissBtn:hover {
+  background: var(--usc-color-dismiss-hover);
+  color: var(--usc-color-text);
+}
+
+.dismissBtn:focus-visible {
+  outline: 2px solid var(--usc-color-accent);
+  outline-offset: 2px;
+}

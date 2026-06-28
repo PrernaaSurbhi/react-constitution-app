@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import heroImg from './assets/hero.png';
 import reactLogo from './assets/react.svg';
 import viteLogo from './assets/vite.svg';
+import { UserSearchCard } from './components/UserSearchCard';
 import './App.css';
 
 function App(): React.JSX.Element {
@@ -25,6 +26,16 @@ function App(): React.JSX.Element {
         <button type="button" className="counter" onClick={() => setCount((count) => count + 1)}>
           Count is {count}
         </button>
+      </section>
+
+      <div className="ticks"></div>
+
+      {/* ── UserSearchCard — interactive team member search ── */}
+      <section
+        id="user-search-section"
+        style={{ display: 'flex', justifyContent: 'center', padding: '32px 20px' }} // ok
+      >
+        <UserSearchCard />
       </section>
 
       <div className="ticks"></div>
