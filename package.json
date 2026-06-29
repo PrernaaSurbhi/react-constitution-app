@@ -12,6 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
     "typecheck": "tsc --noEmit",
     "review": "bash scripts/review.sh",
+    "review:interactive": "bash scripts/interactive-review.sh",
     "preview": "vite preview",
     "prepare": "husky"
   },
